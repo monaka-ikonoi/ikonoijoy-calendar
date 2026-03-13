@@ -230,7 +230,6 @@ body {
   background: var(--bg-hover);
   color: var(--text-primary);
   border-color: var(--text-light);
-  transform: translateY(-2px);
 }
 
 .month-nav-btn:disabled {
