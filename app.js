@@ -501,6 +501,16 @@ function renderSelectedDay() {
     `).join("");
 }
 
+function scrollToDetailSection() {
+  const detailSection = document.querySelector(".detail-card");
+  if (!detailSection) return;
+
+  detailSection.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+}
+
 function renderAll() {
   setActiveGroupButtons();
   updateCounts();
@@ -621,7 +631,14 @@ function bindCalendarEvents() {
     const cell = event.target.closest(".calendar-day[data-day]");
     if (!cell) return;
 
-    state.selectedDay = Number(cell.dataset.day);
+    const clickedDay = Number(cell.dataset.day);
+
+    if (clickedDay === state.selectedDay) {
+      scrollToDetailSection();
+      return;
+    }
+
+    state.selectedDay = clickedDay;
     renderCalendar();
     renderSelectedDay();
   });
@@ -634,7 +651,15 @@ function bindCalendarEvents() {
     if (!cell) return;
 
     event.preventDefault();
-    state.selectedDay = Number(cell.dataset.day);
+
+    const clickedDay = Number(cell.dataset.day);
+
+    if (clickedDay === state.selectedDay) {
+      scrollToDetailSection();
+      return;
+    }
+
+    state.selectedDay = clickedDay;
     renderCalendar();
     renderSelectedDay();
   });
