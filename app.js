@@ -327,17 +327,18 @@ function renderLoading() {
 
   document.getElementById("calendar-grid").innerHTML = `
     <div class="empty-state" style="grid-column: 1 / -1;">
-      <h4>読み込み中...</h4>
-      <p>${state.year}年${pad2(state.month)}月のデータを取得しています。</p>
+      <div class="spinner"></div>
+      <h4>データを読み込み中...</h4>
     </div>
     `;
 
   document.getElementById("selected-date-title").textContent = `${pad2(state.month)}/--`;
-  document.getElementById("selected-date-meta").textContent = "データを読み込み中...";
+  document.getElementById("selected-date-meta").textContent = "...";
 
   document.getElementById("event-list").innerHTML = `
     <div class="empty-state" style="grid-column: 1 / -1;">
-      <h4>読み込み中...</h4>
+      <div class="spinner"></div>
+      <h4>データを読み込み中...</h4>
     </div>
     `;
 }
