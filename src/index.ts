@@ -1,5 +1,7 @@
 import { parseHTML } from 'linkedom';
 
+const CACHE_MAX_AGE = 3600;
+
 const SiteList: Record<string, string> = {
   'equal-love': 'https://equal-love.jp',
   'not-equal-me': 'https://not-equal-me.jp',
@@ -17,12 +19,13 @@ type Result = Record<string, EventItem[]>;
 
 const trim = (s = '') => s.replace(/\s+/g, ' ').trim();
 
-const json = (data: unknown, status = 200): Response => {
+const json = (data: unknown, status = 200, extraHeaders: Record<string, string> = {}): Response => {
   return new Response(JSON.stringify(data, null, 2), {
     status,
     headers: {
       'content-type': 'application/json; charset=utf-8',
       'access-control-allow-origin': '*',
+      ...extraHeaders,
     },
   });
 };
@@ -95,8 +98,12 @@ function extractCalendar(html: string, baseUrl: string, tag: string): Result {
 }
 
 export default {
-  async fetch(request: Request): Promise<Response> {
+  async fetch(request: Request, env: unknown, ctx: ExecutionContext): Promise<Response> {
     try {
+      if (request.method !== 'GET') {
+        return json({ error: 'Method not allowed' }, 405);
+      }
+
       const url = new URL(request.url);
       const params = parseUrlParams(url.searchParams);
 
@@ -105,6 +112,13 @@ export default {
       }
 
       const { year, month } = params;
+
+      const cacheKey = new Request(url.toString(), request);
+      const cache = (caches as any).default;
+      const cachedResponse = await cache.match(cacheKey);
+      if (cachedResponse) {
+        return cachedResponse;
+      }
 
       const fetchTasks = Object.entries(SiteList).map(async ([tag, baseUrl]) => {
         const fetchUrl = `${baseUrl}/schedule/calender/${year}/${month}`;
@@ -140,10 +154,26 @@ export default {
         return json({ error: 'All upstream fetches failed', details: errors }, 502);
       }
 
-      return json({
-        data: aggregatedResult,
-        _meta: errors.length > 0 ? { warnings: errors } : undefined,
-      });
+      const hasErrors = errors.length > 0;
+
+      const cacheHeaders = hasErrors
+        ? { 'Cache-Control': 'no-store, no-cache, must-revalidate' }
+        : { 'Cache-Control': `public, max-age=${CACHE_MAX_AGE}, s-maxage=${CACHE_MAX_AGE}` };
+
+      const response = json(
+        {
+          data: aggregatedResult,
+          _meta: hasErrors ? { warnings: errors } : undefined,
+        },
+        200,
+        cacheHeaders
+      );
+
+      if (!hasErrors) {
+        ctx.waitUntil(cache.put(cacheKey, response.clone()));
+      }
+
+      return response;
     } catch (e) {
       return json({ error: e instanceof Error ? e.message : String(e) }, 500);
     }
