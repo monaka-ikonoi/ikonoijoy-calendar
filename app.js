@@ -398,7 +398,11 @@ function renderCalendar() {
       previewHtml = `
             <div class="event-preview-list">
               ${filteredEvents.slice(0, 3).map(event => `
-                <div class="mini-event ${event.tag}">
+                <div
+                  class="mini-event ${event.tag}"
+                  title="${escapeAttr(event.title)}"
+                  aria-label="${escapeAttr(event.title)}"
+                >
                   <span class="mini-dot"></span>
                   <span class="mini-event-text">${escapeHtml(event.title)}</span>
                 </div>
