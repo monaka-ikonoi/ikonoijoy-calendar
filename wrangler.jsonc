@@ -1,5 +1,11 @@
 {
   "name": "ikonoijoy-calendar",
   "compatibility_date": "2026-03-13",
-  "main": "src/index.ts"
+  "main": "src/index.ts",
+  "routes": [
+    {
+      "pattern": "api.ikonoijoy-calendar.notequal.me",
+      "custom_domain": true
+    }
+  ]
 }
