@@ -1,4 +1,4 @@
-const API_BASE = "http://127.0.0.1:8787/";
+const API_BASE = "https://api.ikonoijoy-calendar.notequal.me/";
 
 const GROUP_META = {
   all: { label: "すべて", color: null },
