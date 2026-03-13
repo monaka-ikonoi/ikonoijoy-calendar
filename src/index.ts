@@ -105,6 +105,11 @@ export default {
       }
 
       const url = new URL(request.url);
+
+      if (url.pathname !== '/') {
+        return json({ error: 'Not Found' }, 404);
+      }
+
       const params = parseUrlParams(url.searchParams);
 
       if ('error' in params) {
