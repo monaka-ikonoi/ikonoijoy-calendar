@@ -1,0 +1,5 @@
+{
+  "name": "ikonoijoy-aggregated-calendar",
+  "compatibility_date": "2026-03-13",
+  "main": "src/index.ts"
+}

@@ -1,0 +1,10 @@
+# Node.js dependencies
+node_modules/
+# OS files
+.DS_Store
+Thumbs.db
+# IDE files
+.vscode/
+# Wrangler files
+.wrangler
+worker-configuration.d.ts
