@@ -127,7 +127,11 @@ export default {
 
       const fetchTasks = Object.entries(SiteList).map(async ([tag, baseUrl]) => {
         const fetchUrl = `${baseUrl}/schedule/calender/${year}/${month}`;
-        const response = await fetch(fetchUrl);
+        const response = await fetch(fetchUrl, {
+          redirect: 'follow',
+          // Original sites denies requests without a User-Agent header
+          headers: { 'User-Agent': 'io.cosm.fc.user.equal.love/1.0' },
+        });
 
         if (!response.ok) {
           throw new Error(`Unable to fetch ${fetchUrl}: ${response.status}`);
