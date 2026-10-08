@@ -238,13 +238,6 @@ function setActiveGroupButtons() {
   });
 }
 
-function setMonthNavDisabled(disabled) {
-  ["prev-month", "current-month", "next-month"].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.disabled = disabled;
-  });
-}
-
 function renderCategoryFilters() {
   const container = document.getElementById("category-filter-container");
   if (!container) return;
@@ -310,7 +303,6 @@ function updateCounts() {
 
 function renderLoading() {
   setActiveGroupButtons();
-  setMonthNavDisabled(true);
   setLoadingCounts("…");
 
   document.getElementById("month-title").textContent = `${state.year}年${state.month}月`;
@@ -348,7 +340,6 @@ function renderError(message) {
 
   setActiveGroupButtons();
   updateCounts();
-  setMonthNavDisabled(false);
 
   document.getElementById("calendar-grid").innerHTML = `
     <div class="empty-state" style="grid-column: 1 / -1;">
@@ -517,7 +508,6 @@ function renderAll() {
   updateCounts();
   renderCalendar();
   renderSelectedDay();
-  setMonthNavDisabled(false);
 }
 
 async function loadMonth(year, month, options = {}) {
@@ -569,14 +559,14 @@ async function loadMonth(year, month, options = {}) {
 
     renderAll();
   } catch (error) {
-    if (error.name === "AbortError") return;
+    if (controller.signal.aborted || error.name === "AbortError") return;
     state.selectedDay = 1;
     renderError(error.message || "Unknown error");
   } finally {
     if (state.abortController === controller) {
       state.abortController = null;
+      state.isLoading = false;
     }
-    state.isLoading = false;
   }
 }
 
@@ -673,14 +663,12 @@ function bindMonthEvents() {
 
   if (prevBtn) {
     prevBtn.addEventListener("click", () => {
-      if (state.isLoading) return;
       changeMonth(-1);
     });
   }
 
   if (currentBtn) {
     currentBtn.addEventListener("click", () => {
-      if (state.isLoading) return;
       const today = getTokyoToday();
       loadMonth(today.year, today.month, {
         preferredDay: today.day
@@ -690,7 +678,6 @@ function bindMonthEvents() {
 
   if (nextBtn) {
     nextBtn.addEventListener("click", () => {
-      if (state.isLoading) return;
       changeMonth(1);
     });
   }
